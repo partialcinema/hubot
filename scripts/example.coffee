@@ -8,11 +8,27 @@
 #
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
-module.exports = (robot) ->
+# To use the robot's 'reaction' event, you have to modify hubot-slack/src/slack.coffee
+# 
+# First, add an event listener on the node-slack-client 'raw_message' event
+# @client.on 'raw_message', @.reaction
+#
+# Then define a reaction listener
+# reaction: (msg) =>
+#   if msg.type == "reaction_removed" or msg.type == "reaction_added"
+#     user = @robot.brain.userForId msg.user
+#     channel = @client.getChannelGroupOrDMByID msg.item.channel if msg.item.channel
+#     reaction = message: msg, user: user, channel: channel
+#     @robot.emit 'reaction', reaction
 
-  # robot.hear /badger/i, (res) ->
-  #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
-  #
+module.exports = (robot) ->
+  robot.hear /badger/i, (res) ->
+    res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
+
+  robot.on 'reaction', (reaction) -> 
+    envelope = room: reaction.channel.id
+    robot.send envelope, "got your reaction message!"
+  
   # robot.respond /open the (.*) doors/i, (res) ->
   #   doorType = res.match[1]
   #   if doorType is "pod bay"
