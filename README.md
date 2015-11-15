@@ -18,11 +18,21 @@ You can test your hubot by running the following, however some plugins will not
 behave as expected unless the [environment variables](#configuration) they rely
 upon have been set.
 
-You can start helper locally by running:
+You can start helper locally by running (will connect to Slack):
 
-    % bin/hubot
+    % HUBOT_SLACK_TOKEN="xoxb-123456" bin/hubot -a slack
 
-You'll see some start up output and a prompt:
+Or debug helper by running:
+
+    % HUBOT_SLACK_TOKEN="xoxb-123456" coffee --nodejs --debug node_modules/.bin/hubot --name "helper" -a slack
+
+in one window, and
+
+    % node-inspector
+
+in the other. The `node-inspector` command will print a URL you can visit to see the debugger.
+
+Once you start helper, you'll see some start up output and a prompt:
 
     [Sat Feb 28 2015 12:38:27 GMT+0000 (GMT)] INFO Using default redis on localhost:6379
     helper>
