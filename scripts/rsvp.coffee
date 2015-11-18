@@ -22,46 +22,11 @@
 #     @robot.emit 'reaction', reaction
 
 stringify = require('json-stringify-safe')
-chrono = require('chrono-node')
-moment = require('moment')
+Event = require('../event')
 
 TEAM_SIZE = 5
 
 module.exports = (robot) ->
-  parseEventType = (request) ->
-    matchesRehearsal = request.text.match /rehearsal/i
-    matchesShow = request.text.match /show/i
-
-    eventType = if matchesRehearsal and !matchesShow
-      'rehearsal'
-    else if matchesShow and !matchesRehearsal
-      'show'
-    else if request.channel is '#shows' or request.channel is '#booking'
-      'show'
-    else if request.channel is '#rehearsal'
-      'rehearsal' 
-    else
-      err = new Error('Unknown event type')
-      err.rsvpRequest = request
-      throw err
-    eventType
-
-  parseEventTime = (request) ->
-    eventTime = chrono.parse(request.text)[0]
-    unless eventTime?
-      err = new Error('Cannot parse event time')
-      err.rsvpRequest = request
-      throw err
-    startTime = eventTime.start.date()
-    endTime = eventTime.end?.date?() || moment(startTime).add(3, 'hours').toDate()
-    start: startTime, end: endTime
-  
-  requestRSVP = (eventType, startTime, endTime, request) ->
-    eventPhrase = if eventType is 'rehearsal' then 'rehearsal' else 'a show'
-    startPhrase = moment(startTime).calendar()
-    endPhrase = moment(endTime).calendar()
-    robot.send room: request.channel.id, "@channel: RSVP for #{eventPhrase} from #{startPhrase} to #{endPhrase}\nhttp://images.wookmark.com/142491_tumblr_ma2idwljpj1rcnp56o1_1280.png"
-
   robot.hear /rsvp/i, (res) ->
     request =
       channel:  
@@ -72,26 +37,24 @@ module.exports = (robot) ->
 
   robot.on 'rsvpRequested', (request) ->
     envelope = room: request.channel.id
-    try 
-      eventTime = parseEventTime request
-      eventType = parseEventType request
-    catch error
-      if error.message is 'Unknown event type'
-        robot.send envelope, "Not sure if you meant rehearsal or show."
-        return
-      if error.message is 'Cannot parse event time'
-        robot.send envelope, "Not sure when that event is supposed to be."
-        return
-    requestRSVP(eventType, eventTime.start, eventTime.end)
+    event = new Event(request)
+    envelope = room: request.channel.id
+    unless event.type?
+      robot.send envelope, "Not sure if you meant rehearsal or show."
+    else unless event.time?
+      robot.send envelope, "Not sure when that event is supposed to be."
+    else
+      robot.send envelope, "@channel: RSVP for #{event.description}"
 
   robot.on 'reaction', (reaction) ->  
-    envelope = room: reaction.channel.id
     gotMessage = (message) ->
       if isConfirmedRSVP message
-        # parse event
-        robot.send envelope, "Confirmed event!"
-        #robot.emit('eventConfirmed', event)
-    # find out how many reactions that message has
+        event = new Event(channel: reaction.channel, text: message.text)
+        if event.valid
+          envelope = room: reaction.channel.id
+          robot.send envelope, "Confirmed #{event.description}"
+          robot.emit('eventConfirmed', event)
+    # find out how many reactions the message has
     getSlackMessage reaction.channel, reaction.message.item.ts, gotMessage 
             
   isConfirmedRSVP = (message) ->
@@ -101,7 +64,6 @@ module.exports = (robot) ->
         usersThatReacted.push user unless user in usersThatReacted
     isConfirmed = usersThatReacted.length is TEAM_SIZE
     isRSVP = message.text.match /rsvp/i
-
     isConfirmed and isRSVP
 
   getSlackMessage = (channel, messageTimeStamp, callback) ->

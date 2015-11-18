@@ -20,11 +20,11 @@ upon have been set.
 
 You can start helper locally by running (will connect to Slack):
 
-    % HUBOT_SLACK_TOKEN="xoxb-123456" bin/hubot -a slack
+    % HUBOT_SLACK_TOKEN="xoxb-123" SLACK_API_TOKEN="xoxp-123" bin/hubot -a slack
 
 Or debug helper by running:
 
-    % HUBOT_SLACK_TOKEN="xoxb-123456" coffee --nodejs --debug node_modules/.bin/hubot --name "helper" -a slack
+    % HUBOT_SLACK_TOKEN="xoxb-123" SLACK_API_TOKEN="xoxp-123" coffee --nodejs --debug node_modules/.bin/hubot --name "helper" -a slack
 
 in one window, and
 
