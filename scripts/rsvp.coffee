@@ -25,45 +25,16 @@ stringify = require('json-stringify-safe')
 chrono = require('chrono-node')
 moment = require('moment')
 
-soonest = (momentX, momentY) ->
-  if momentX.isBefore momentY
-    momentX
-  else
-    momentY
+TEAM_SIZE = 5
 
 module.exports = (robot) ->
-  class RSVP 
-    constructor: (eventType, @request, startTime, endTime) ->
-      @state = 'pending'
-      @reactions = []
-
-      # if no end time, default to three hours after start time
-      endTime ||= moment(startTime).add(3, 'hours').toDate()
-
-      @event = 
-        type: eventType
-        start: startTime
-        end: endTime
-
-      # automatically cancel this RSVP if it is not confirmed
-      # in one week or by the start of the event, whichever is sooner
-      startingMoment = moment(startTime)
-      oneWeekFromNow = moment().add(1, 'weeks')
-      now = moment()
-      timeTilCancellation = soonest(startingMoment, oneWeekFromNow).subtract(now).milliseconds()
-      emitCanceled = () => robot.emit 'rsvpCanceled', @
-      timeoutID = setTimeout emitCanceled, timeTilCancellation
-      @cancel = () => 
-        clearTimeout(timeoutID)
-        @state = 'canceled'
-
   parseEventType = (request) ->
-    isRehearsal = request.text.match /rehearsal/i
-    isShow = request.text.match /show/i
+    matchesRehearsal = request.text.match /rehearsal/i
+    matchesShow = request.text.match /show/i
 
-    eventType = if isRehearsal and !isShow
+    eventType = if matchesRehearsal and !matchesShow
       'rehearsal'
-    else if isShow and !isRehearsal
+    else if matchesShow and !matchesRehearsal
       'show'
     else if request.channel is '#shows' or request.channel is '#booking'
       'show'
@@ -74,12 +45,22 @@ module.exports = (robot) ->
       err.rsvpRequest = request
       throw err
     eventType
+
+  parseEventTime = (request) ->
+    eventTime = chrono.parse(request.text)[0]
+    unless eventTime?
+      err = new Error('Cannot parse event time')
+      err.rsvpRequest = request
+      throw err
+    startTime = eventTime.start.date()
+    endTime = eventTime.end?.date?() || moment(startTime).add(3, 'hours').toDate()
+    start: startTime, end: endTime
   
-  requestRSVP = (channelId, rsvp) ->
-    eventPhrase = if rsvp.event.type is 'rehearsal' then 'rehearsal' else 'a show'
-    start = moment(rsvp.event.start).calendar()
-    end = moment(rsvp.event.end).calendar()
-    robot.send room: rsvp.request.channel.id, "@channel: RSVP for #{eventPhrase} from #{start} to #{end}"
+  requestRSVP = (eventType, startTime, endTime, request) ->
+    eventPhrase = if eventType is 'rehearsal' then 'rehearsal' else 'a show'
+    startPhrase = moment(startTime).calendar()
+    endPhrase = moment(endTime).calendar()
+    robot.send room: request.channel.id, "@channel: RSVP for #{eventPhrase} from #{startPhrase} to #{endPhrase}\nhttp://images.wookmark.com/142491_tumblr_ma2idwljpj1rcnp56o1_1280.png"
 
   robot.hear /rsvp/i, (res) ->
     request =
@@ -91,14 +72,65 @@ module.exports = (robot) ->
 
   robot.on 'rsvpRequested', (request) ->
     envelope = room: request.channel.id
-    eventTime = chrono.parse(request.text)[0]
-    eventType = parseEventType request
-    rsvp = new RSVP(eventType, request, eventTime.start.date(), eventTime.end?.date?())
-    requestRSVP(request.channel.id, rsvp)
+    try 
+      eventTime = parseEventTime request
+      eventType = parseEventType request
+    catch error
+      if error.message is 'Unknown event type'
+        robot.send envelope, "Not sure if you meant rehearsal or show."
+        return
+      if error.message is 'Cannot parse event time'
+        robot.send envelope, "Not sure when that event is supposed to be."
+        return
+    requestRSVP(eventType, eventTime.start, eventTime.end)
 
-  robot.on 'reaction', (reaction) -> 
+  robot.on 'reaction', (reaction) ->  
     envelope = room: reaction.channel.id
-    robot.send envelope, "reaction: #{stringify(reaction)}"
+    gotMessage = (message) ->
+      if isConfirmedRSVP message
+        # parse event
+        robot.send envelope, "Confirmed event!"
+        #robot.emit('eventConfirmed', event)
+    # find out how many reactions that message has
+    getSlackMessage reaction.channel, reaction.message.item.ts, gotMessage 
+            
+  isConfirmedRSVP = (message) ->
+    usersThatReacted = []
+    for reaction in message.reactions
+      for user in reaction.users
+        usersThatReacted.push user unless user in usersThatReacted
+    isConfirmed = usersThatReacted.length is TEAM_SIZE
+    isRSVP = message.text.match /rsvp/i
+
+    isConfirmed and isRSVP
+
+  getSlackMessage = (channel, messageTimeStamp, callback) ->
+    apiRequestComplete = (data) ->
+      message = data.messages[0]
+      callback message
+    apiMethod = if channel.is_im
+      'im.history'
+    else 
+      'channels.history'
+    params =
+      channel: channel.id
+      latest: messageTimeStamp
+      oldest: messageTimeStamp
+      inclusive: 1
+    makeSlackApiRequest apiMethod, params, apiRequestComplete
+
+  makeSlackApiRequest = (apiMethod, queryParams, callback) ->
+    slackApiToken = process.env.SLACK_API_TOKEN
+    url = "https://slack.com/api/#{apiMethod}?token=#{slackApiToken}"
+    for own key of queryParams
+      value = queryParams[key]
+      url += "&#{key}=#{value}"
+    robot.http(url).header('Accept', 'application/json').get() (err, res, body) ->
+      if err
+        throw err
+      else
+        data = JSON.parse body
+        callback data
   
   # robot.respond /open the (.*) doors/i, (res) ->
   #   doorType = res.match[1]
