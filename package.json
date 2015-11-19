@@ -5,7 +5,9 @@
   "author": "partialcinemabooking@gmail.com",
   "description": "Helpful Electronic Lab Partner Robot",
   "dependencies": {
+    "body-parser": "^1.14.1",
     "chrono-node": "^1.0.10",
+    "express": "^4.13.3",
     "hubot": "^2.16.0",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.2.3",
