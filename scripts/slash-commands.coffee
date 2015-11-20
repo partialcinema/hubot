@@ -1,11 +1,11 @@
-express = require('express')
-bodyParser = require('body-parser')
+express = require('express') #server
+bodyParser = require('body-parser') #to read the information sent from a slack command
 
 app = express()
 app.use(bodyParser.urlencoded({ extended: false}));
 
 module.exports = (robot) ->
-	# rec the command, sends it to Helper
+	# recieves the command, sends it to Helper
 	app.post '/', (req) ->
 		eventData = 
 			channel:
