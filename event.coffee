@@ -22,7 +22,7 @@ class Event
     else if channelName is '#rehearsal'
       'rehearsal' 
     else
-      null
+      'other'
     eventType
 
   parseTime = (text) ->
