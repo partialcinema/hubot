@@ -20,6 +20,11 @@ upon have been set.
 
 You can start helper locally by running (will connect to Slack):
 
+    % # On Windows
+    % set HUBOT_SLACK_TOKEN="xoxb-123"
+    % bin/hubot -a slack
+    
+    % # In a Unix-like environment
     % HUBOT_SLACK_TOKEN="xoxb-123" SLACK_API_TOKEN="xoxp-123" bin/hubot -a slack
 
 Or debug helper by running:
@@ -66,11 +71,7 @@ it's suggested that you search for a dedicated guide focused on your OS.
 
 ### Scripting
 
-An example script is included at `scripts/example.coffee`, so check it out to
-get started, along with the [Scripting Guide](scripting-docs).
-
-For many common tasks, there's a good chance someone has already one to do just
-the thing.
+Scripting documentation is here:
 
 [scripting-docs]: https://github.com/github/hubot/blob/master/docs/scripting.md
 
@@ -192,31 +193,6 @@ hubot onto Windows][deploy-windows] wiki pages.
 [deploy-heroku]: https://github.com/github/hubot/blob/master/docs/deploying/heroku.md
 [deploy-unix]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
 [deploy-windows]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
-
-## Campfire Variables
-
-If you are using the Campfire adapter you will need to set some environment
-variables. If not, refer to your adapter documentation for how to configure it,
-links to the adapters can be found on [Hubot Adapters][hubot-adapters].
-
-Create a separate Campfire user for your bot and get their token from the web
-UI.
-
-    % heroku config:add HUBOT_CAMPFIRE_TOKEN="..."
-
-Get the numeric IDs of the rooms you want the bot to join, comma delimited. If
-you want the bot to connect to `https://mysubdomain.campfirenow.com/room/42`
-and `https://mysubdomain.campfirenow.com/room/1024` then you'd add it like
-this:
-
-    % heroku config:add HUBOT_CAMPFIRE_ROOMS="42,1024"
-
-Add the subdomain hubot should connect to. If you web URL looks like
-`http://mysubdomain.campfirenow.com` then you'd add it like this:
-
-    % heroku config:add HUBOT_CAMPFIRE_ACCOUNT="mysubdomain"
-
-[hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
 
 ## Restart the bot
 
