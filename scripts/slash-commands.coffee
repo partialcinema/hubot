@@ -14,6 +14,9 @@ module.exports = (robot) ->
 			text: req.body.text
 		robot.emit 'rsvpRequested', eventData
 
+	app.get '/google/auth', (req) ->
+		console.log 'Got auth request'
+
 	# Actually initializes server
 	server = app.listen 3000, () ->
 	  host = server.address().address

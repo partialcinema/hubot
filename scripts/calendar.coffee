@@ -1,31 +1,41 @@
-stringify = require "json-stringify-safe"
-gcal = require "google-calendar"
+google = require "googleapis"
+calendar = google.calendar 'v3'
 moment = require "moment"
+stringify = require "json-stringify-safe"
+
+CLIENT_ID = '650934664824-9jkko6s2klfnsncep2h1bbl9n01fepju.apps.googleusercontent.com'
+CLIENT_SECRET = 'mPReJ6Hv-oJ3gcvDL2v2d6iY'
+
+OAuth2 = google.auth.OAuth2
+oauth2Client = new OAuth2 CLIENT_ID, CLIENT_SECRET, 'http://dev.partialcinema.com/google/auth'
 
 accessToken = null # will 401 the first time, and refresh the token
 refreshToken = process.env.GOOGLE_CALENDAR_REFRESH_TOKEN
 
-calendar = new gcal.GoogleCalendar(accessToken)
-calendarIDs = 
+oauth2Client.setCredentials
+  access_token: accessToken
+  refresh_token: refreshToken
+
+calendarIds = 
 	rehearsals:'scromh7crg9cm0u695pumsrb4o@group.calendar.google.com'
 	shows:'m0crma3ead736lct9r0f88s1sk@group.calendar.google.com'
 	other:'ghptaulpabvqsefm19cfhokh54@group.calendar.google.com'
 
-
 createEvent = (type, parameters, callback) ->
-	calendarID = calendarIDs[type]
-	calendar.events.insert calendarID, parameters, callback
+	parameters.calendarId = calendarIds[type]
+	calendar.events.insert parameters, callback
 
-refreshIfUnauthorized = (err, data) ->
-	if err.errors.code is 401 # Will throw error once at the beginning of a session in order to refresh the token
-		#refresh access token
-		#try again
-	else if err
-		console.log err
-	else
-		console.log "Event Created in Google Calendar: #{stringify data}" 
+refreshIfUnauthorized = (type, parameters) ->
+	(err, data) ->
+#		if err.errors.code is 401 # Will throw error once at the beginning of a session in order to refresh the token
+#			#refresh google access token
+#			createEvent type, parameters, explodeIfError
+#		else
+#			explodeIfError err, data
+		console.log stringify err
+		console.log stringify data
 
-explodeIfUnauthorized = (err, data) ->
+explodeIfError = (err, data) ->
 	if err
 		throw new Error(err)
 	else
@@ -40,24 +50,10 @@ module.exports = (robot) ->
 				dateTime: moment(ev.time.start).toISOString()
 			end:
 				dateTime: moment(ev.time.end).toISOString()
+			auth: oauth2Client
 
-		createEvent ev.type, parameters, () ->
-
-
-		
-			
+		createEvent ev.type, parameters, refreshIfUnauthorized(ev.type, parameters)
 
 
-
-
-
-# gcal.resource.method ( required_param1, required_param2, optional, callback )
-# gcal.events.insert
-# gcal.events.quickAdd
-
-# PC Rehearsals: scromh7crg9cm0u695pumsrb4o@group.calendar.google.com
-# PC Shows: m0crma3ead736lct9r0f88s1sk@group.calendar.google.com
-# PC Other: ghptaulpabvqsefm19cfhokh54@group.calendar.google.com
-
-# access token: ya29.RAL_M_-GHq020PfI3k-Q4Lt0VABtdAofukeBzhVyqG99pHDj3QTO87S6tT7sA_cAwazm
-# refresh token: 1/HQv3x7z_dx8QGLPUx-o1_BI8vsfjzafZsQdVoOCaejc
+# client ID: 650934664824-9jkko6s2klfnsncep2h1bbl9n01fepju.apps.googleusercontent.com
+# client secret: mPReJ6Hv-oJ3gcvDL2v2d6iY
