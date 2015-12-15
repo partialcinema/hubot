@@ -1,4 +1,6 @@
+.gitignore
 node_modules
 .DS_Store*
 .hubot_history
 run-helper.bat
+helper-client-id.json

@@ -1,3 +1,15 @@
+# Description:
+#   Handles interaction with Trello API.
+# Dependencies:
+#   
+# Configuration:
+#   
+# Commands:
+#   
+# Author:
+#	C. Thomas Bailey
+#	Ian Edwards
+
 Trello = require "node-trello"
 stringify = require "json-stringify-safe"
 t = new Trello process.env.TRELLO_API_KEY, process.env.TRELLO_AUTH_TOKEN

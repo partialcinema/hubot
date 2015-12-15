@@ -1,3 +1,14 @@
+# Description:
+#   Verifies environment variables on the server.
+# Dependencies:
+#   
+# Configuration:
+#
+# Commands:
+#   
+# Author:
+#	C. Thomas Bailey
+
 REQUIRED_ENV_VARS = ['HUBOT_SLACK_TOKEN', 'SLACK_API_TOKEN', 'GOOGLE_CALENDAR_REFRESH_TOKEN']
 
 module.exports = (robot) ->
