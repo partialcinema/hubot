@@ -1,6 +1,13 @@
-# Ian's individual project - Mostly experimental for now.
-# Thomas - I'll come to you when I feel like I have something I want to implement or get feedback on.
-# https://github.com/PhobosRising/node-nextplayer
+# Description:
+#   Tracks cooking responsibilities for use with Google Calendar.
+# Dependencies:
+#   
+# Configuration:
+#   
+# Commands:
+#   
+# Author:
+#	Ian Edwards
 
 # stringify = require "json-stringify-safe"
 capitalize = (word) -> 
@@ -38,7 +45,8 @@ class MealCycle
 		mealMade()
 
 
-module.exports = null
+module.exports = () ->
+	
 #####################################
 #mealCycle = new MealCycle()
 

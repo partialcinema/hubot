@@ -1,6 +1,15 @@
 chrono = require('chrono-node')
 moment = require('moment')
 
+moment.locale 'en',
+   calendar: 
+       lastDay: '[Yesterday at] LT',
+       sameDay: '[Today at] LT',
+       nextDay: '[Tomorrow at] LT',
+       lastWeek: '[last] dddd [at] LT',
+       nextWeek: '[next] dddd [at] LT',
+       sameElse: 'll [at] LT'
+
 class Event
   constructor: (request) ->
     @time = parseTime request.text
@@ -32,7 +41,7 @@ class Event
     startTime = eventTime.start.date()
     endTime = eventTime.end?.date?() || moment(startTime).add(3, 'hours').toDate()
     start: startTime, end: endTime
-
+    
   describe = (event) ->
     eventPhrase = if event.type is 'rehearsal' then 'rehearsal' else 'a show'
     startPhrase = moment(event.time.start).calendar()

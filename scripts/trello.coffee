@@ -1,5 +1,5 @@
 # Description:
-#   Handles interaction with Trello API.
+#   Handles interaction with Trello API (unused as of now).
 # Dependencies:
 #   
 # Configuration:

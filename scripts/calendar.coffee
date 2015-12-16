@@ -28,8 +28,6 @@ createEvent = (type, parameters, callback) ->
 explodeIfError = (err, data) ->
 	if err
 		throw new Error(err)
-	else
-		console.log "Event Created in Google Calendar: #{stringify data}" 
 
 module.exports = (robot) ->
 	robot.on 'eventConfirmed', (ev) ->
@@ -38,8 +36,7 @@ module.exports = (robot) ->
 				summary: ev.type
 				location: '214 Eaglewood Ct.'
 				start:
-					dateTime: moment(ev.time.start).toISOString()
+					dateTime: moment.utc(ev.time.start).toISOString()
 				end:
-					dateTime: moment(ev.time.end).toISOString()
-
+					dateTime: moment.utc(ev.time.end).toISOString()
 		createEvent ev.type, parameters, explodeIfError
