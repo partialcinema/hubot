@@ -9,7 +9,7 @@
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
 # To use the robot's 'reaction' event, you have to modify hubot-slack/src/slack.coffee
-# 
+#
 # First, add an event listener on the node-slack-client 'raw_message' event
 # @client.on 'raw_message', @.reaction
 #
@@ -30,9 +30,9 @@ TEAM_SIZE = 2
 module.exports = (robot) ->
   robot.hear /rsvp/i, (res) ->
     request =
-      channel:  
-        id: res.message.rawMessage.channel 
-        name: res.message.room 
+      channel:
+        id: res.message.rawMessage.channel
+        name: res.message.room
       text: res.message.rawText
     robot.emit 'rsvpRequested', request
 
@@ -46,7 +46,7 @@ module.exports = (robot) ->
     else
       robot.send envelope, "@channel: RSVP for #{event.description}"
 
-  robot.on 'reaction', (reaction) ->  
+  robot.on 'reaction', (reaction) ->
     gotMessage = (message) ->
       if isConfirmedRSVP message
         event = new Event(channel: reaction.channel, text: message.text)
@@ -55,7 +55,7 @@ module.exports = (robot) ->
           robot.send envelope, "Confirmed #{event.description}"
           robot.emit('eventConfirmed', event)
     # find out how many reactions the message has
-    getSlackMessage reaction.channel, reaction.message.item.ts, gotMessage 
+    getSlackMessage reaction.channel, reaction.message.item.ts, gotMessage
 
   isConfirmedRSVP = (message) ->
     unless message.reactions?
@@ -74,7 +74,7 @@ module.exports = (robot) ->
       gotMessage message
     apiMethod = if channel.is_im
       'im.history'
-    else 
+    else
       'channels.history'
     params =
       channel: channel.id

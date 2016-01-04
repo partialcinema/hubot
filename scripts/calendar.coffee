@@ -1,11 +1,11 @@
 # Description:
 #   Handles interaction with Google Calendar API.
 # Dependencies:
-#   
+#
 # Configuration:
-#   
+#
 # Commands:
-#   
+#
 # Author:
 #	C. Thomas Bailey
 #	Ian Edwards
@@ -16,10 +16,10 @@ calendar = google.calendar version: 'v3', auth: googleAuth
 moment = require "moment"
 stringify = require "json-stringify-safe"
 
-calendarIds = 
-	rehearsal:'scromh7crg9cm0u695pumsrb4o@group.calendar.google.com'
-	show:'m0crma3ead736lct9r0f88s1sk@group.calendar.google.com'
-	other:'ghptaulpabvqsefm19cfhokh54@group.calendar.google.com'
+calendarIds =
+	rehearsal:	'scromh7crg9cm0u695pumsrb4o@group.calendar.google.com'
+	show:				'm0crma3ead736lct9r0f88s1sk@group.calendar.google.com'
+	other:			'ghptaulpabvqsefm19cfhokh54@group.calendar.google.com'
 
 createEvent = (type, parameters, callback) ->
 	parameters.calendarId = calendarIds[type]
@@ -31,7 +31,7 @@ reportError = (err, data) ->
 
 module.exports = (robot) ->
 	robot.on 'eventConfirmed', (ev) ->
-		parameters = 
+		parameters =
 			resource:
 				summary: ev.type
 				location: '214 Eaglewood Ct.'
