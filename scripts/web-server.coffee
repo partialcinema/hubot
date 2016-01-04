@@ -40,4 +40,4 @@ module.exports = (robot) ->
 	server = app.listen 3000, () ->
 	  host = server.address().address
 	  port = server.address().port
-	  robot.logg.info "Slash command server listening at http://#{host}:#{port}"
+	  robot.logger.info "Slash command server listening at http://#{host}:#{port}"
