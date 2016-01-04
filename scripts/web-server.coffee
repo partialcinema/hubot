@@ -33,14 +33,14 @@ module.exports = (robot) ->
     robot.emit 'rsvpRequested', ev
     res.sendStatus 200
 
-	# receives the command, sends it to Helper
-	app.post '/helper/rsvp', handleSlackSlashCommand
+  # receives the command, sends it to Helper
+  app.post '/helper/rsvp', handleSlackSlashCommand
 
-	app.get '/helper/auth', (req) ->
-		robot.logger.info "Got auth request: #{JSON.stringify req.query}"
+  app.get '/helper/auth', (req) ->
+    robot.logger.info "Got auth request: #{JSON.stringify req.query}"
 
-	# Actually initializes server
-	server = app.listen 3000, () ->
-	  host = server.address().address
-	  port = server.address().port
-	  robot.logger.info "Slash command server listening at http://#{host}:#{port}"
+  # Actually initializes server
+  server = app.listen 3000, () ->
+    host = server.address().address
+    port = server.address().port
+    robot.logger.info "Slash command server listening at http://#{host}:#{port}"
