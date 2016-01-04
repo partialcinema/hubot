@@ -25,9 +25,9 @@ createEvent = (type, parameters, callback) ->
 	parameters.calendarId = calendarIds[type]
 	calendar.events.insert parameters, callback
 
-explodeIfError = (err, data) ->
+reportError = (err, data) ->
 	if err
-		throw new Error(err)
+		robot.emit 'error', new Error(err)
 
 module.exports = (robot) ->
 	robot.on 'eventConfirmed', (ev) ->
@@ -39,4 +39,4 @@ module.exports = (robot) ->
 					dateTime: moment.utc(ev.time.start).toISOString()
 				end:
 					dateTime: moment.utc(ev.time.end).toISOString()
-		createEvent ev.type, parameters, explodeIfError
+		createEvent ev.type, parameters, reportError

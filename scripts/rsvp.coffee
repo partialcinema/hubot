@@ -39,7 +39,6 @@ module.exports = (robot) ->
   robot.on 'rsvpRequested', (request) ->
     envelope = room: request.channel.id
     event = new Event(request)
-    envelope = room: request.channel.id
     unless event.type?
       robot.send envelope, "Not sure if you meant rehearsal or show."
     else unless event.time?
@@ -57,7 +56,7 @@ module.exports = (robot) ->
           robot.emit('eventConfirmed', event)
     # find out how many reactions the message has
     getSlackMessage reaction.channel, reaction.message.item.ts, gotMessage 
-            
+
   isConfirmedRSVP = (message) ->
     unless message.reactions?
       return false
@@ -69,10 +68,10 @@ module.exports = (robot) ->
     isRSVP = message.text.match /rsvp/i
     isConfirmed and isRSVP
 
-  getSlackMessage = (channel, messageTimeStamp, callback) ->
+  getSlackMessage = (channel, messageTimeStamp, gotMessage) ->
     apiRequestComplete = (data) ->
       message = data.messages[0]
-      callback message
+      gotMessage message
     apiMethod = if channel.is_im
       'im.history'
     else 
@@ -84,7 +83,7 @@ module.exports = (robot) ->
       inclusive: 1
     makeSlackApiRequest apiMethod, params, apiRequestComplete
 
-  makeSlackApiRequest = (apiMethod, queryParams, callback) ->
+  makeSlackApiRequest = (apiMethod, queryParams, apiRequestComplete) ->
     slackApiToken = process.env.SLACK_API_TOKEN
     url = "https://slack.com/api/#{apiMethod}?token=#{slackApiToken}"
     for own key of queryParams
@@ -92,7 +91,7 @@ module.exports = (robot) ->
       url += "&#{key}=#{value}"
     robot.http(url).header('Accept', 'application/json').get() (err, res, body) ->
       if err
-        throw err
+        robot.emit 'error', new Error(err)
       else
         data = JSON.parse body
-        callback data
+        apiRequestComplete data
