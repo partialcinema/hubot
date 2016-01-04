@@ -1,11 +1,11 @@
 # Description:
 #   Verifies environment variables on the server.
 # Dependencies:
-#   
+#
 # Configuration:
 #
 # Commands:
-#   
+#
 # Author:
 #	C. Thomas Bailey
 

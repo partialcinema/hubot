@@ -10,4 +10,4 @@
 #	Ian Edwards
 
 module.exports = (debugInfo) ->
-	console.log "[DEBUG]"
+#	console.log "[DEBUG]"
