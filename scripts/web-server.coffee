@@ -24,12 +24,15 @@ getEventData = (req) ->
       name: req.body.channel_name
     text: req.body.text
 
-handleSlackSlashCommand = (req, res) ->
-  ev = getEventData req
-  robot.emit 'rsvpRequested', ev
-  res.sendStatus 200
 
 module.exports = (robot) ->
+
+  handleSlackSlashCommand = (req, res) ->
+    ev = getEventData req
+    robot.logger.info "Got Slack slash command: #{JSON.stringify ev}"
+    robot.emit 'rsvpRequested', ev
+    res.sendStatus 200
+
 	# receives the command, sends it to Helper
 	app.post '/helper/rsvp', handleSlackSlashCommand
 
