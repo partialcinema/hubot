@@ -21,6 +21,8 @@ calendarIds =
 	show:				'm0crma3ead736lct9r0f88s1sk@group.calendar.google.com'
 	other:			'ghptaulpabvqsefm19cfhokh54@group.calendar.google.com'
 
+calendarIds.recording = calendarIds.rehearsal
+
 createEvent = (type, parameters, callback) ->
 	parameters.calendarId = calendarIds[type]
 	calendar.events.insert parameters, callback
