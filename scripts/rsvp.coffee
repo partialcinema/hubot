@@ -24,8 +24,13 @@
 stringify = require('json-stringify-safe')
 Event = require('../event')
 
-# at 2 for debugging
-TEAM_SIZE = 2
+# if running in a production environment,
+# listen for 5 reactions to confirm an
+# event. Otherwise, only listen for 1.
+if process.env.NODE_ENV is 'production'
+  TEAM_SIZE = 5
+else
+  TEAM_SIZE = 1
 
 module.exports = (robot) ->
   robot.hear /rsvp/i, (res) ->
