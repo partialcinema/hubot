@@ -2,7 +2,7 @@ chrono = require('chrono-node')
 moment = require('moment')
 
 moment.locale 'en',
-   calendar: 
+   calendar:
        lastDay: '[Yesterday at] LT',
        sameDay: '[Today at] LT',
        nextDay: '[Tomorrow at] LT',
@@ -21,15 +21,18 @@ class Event
   parseType = (channelName, text) ->
     matchesRehearsal = text.match /rehearsal/i
     matchesShow = text.match /show/i
+    matchesRecording = text.match /recording/i
 
-    eventType = if matchesRehearsal and !matchesShow
+    eventType = if matchesRehearsal and !matchesShow and !matchesRecording
       'rehearsal'
-    else if matchesShow and !matchesRehearsal
+    else if matchesShow and !matchesRehearsal and !matchesRecording
       'show'
+    else if matchesRecording and !matchesRehearsal and !matchesShow
+      'recording'
     else if channelName is '#shows' or channelName is '#booking'
       'show'
     else if channelName is '#rehearsal'
-      'rehearsal' 
+      'rehearsal'
     else
       'other'
     eventType
@@ -41,9 +44,9 @@ class Event
     startTime = eventTime.start.date()
     endTime = eventTime.end?.date?() || moment(startTime).add(3, 'hours').toDate()
     start: startTime, end: endTime
-    
+
   describe = (event) ->
-    eventPhrase = if event.type is 'rehearsal' then 'rehearsal' else 'a show'
+    eventPhrase = if event.type is 'rehearsal' then 'rehearsal' else if event.type is 'recording' then 'recording' else 'a show'
     startPhrase = moment(event.time.start).calendar()
     endPhrase = moment(event.time.end).calendar()
     "#{eventPhrase} from #{startPhrase} to #{endPhrase}"
